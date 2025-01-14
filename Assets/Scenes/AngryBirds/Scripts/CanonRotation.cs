@@ -20,6 +20,7 @@ public class CanonRotation : MonoBehaviour
     private bool isChargingSpeed = false;
     private Vector3 mousePos;
     private Vector3 direction;
+    private Quaternion rotation;
     private float angle;
 
     private void Awake()
@@ -31,8 +32,10 @@ public class CanonRotation : MonoBehaviour
         mousePos = Input.mousePosition;
         direction = mousePos - Camera.main.WorldToScreenPoint(transform.position);
         angle = (Mathf.Atan2(direction.y, direction.x) * 180f / Mathf.PI + offset);
-
-        transform.rotation = Quaternion.AngleAxis(angle, Vector3.forward);
+        rotation = Quaternion.AngleAxis(angle, Vector3.forward);
+        
+        if (angle < _maxRotation.z && angle > _minRotation.z)
+            transform.rotation = rotation;
 
         if (Input.GetMouseButton(0) && !isChargingSpeed)
         {
@@ -42,6 +45,7 @@ public class CanonRotation : MonoBehaviour
         if(!Input.GetMouseButton(0) && !isChargingSpeed && ProjectileSpeed >= MinSpeed)
         {
             GameObject projectile = Instantiate(Bullet, ShootPoint.transform.position, ShootPoint.transform.rotation);
+            direction = -(transform.position - ShootPoint.transform.position);
             projectile.GetComponent<Rigidbody2D>().AddForce(direction.normalized * ProjectileSpeed, ForceMode2D.Impulse);
             ProjectileSpeed = 0;
         }
